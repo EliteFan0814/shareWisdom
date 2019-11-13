@@ -44,6 +44,15 @@ export default {
     }
     // cardList() {
     //   return [
+    //     { path: '/member/MemberList', ...this.dataMsg[0] },
+    //     { path: '/orderManage/RetailOrder',...this.dataMsg[1] },
+    //     { path: '/orderManage/WholesaleOrder',...this.dataMsg[2] },
+    //     { path: '/consignment/Consignment',...this.dataMsg[3] },
+    //     { path: '/mallManage/GoodsManage',...this.dataMsg[4] }
+    //   ]
+    // }
+    // cardList() {
+    //   return [
     //     { ...this.dataMsg.list, path: '/business/BusinessList', number: 0 },
     //     { ...this.dataMsg.img, path: '/member/MemberList', number: 1 },
     //     {

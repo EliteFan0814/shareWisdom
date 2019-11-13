@@ -60,7 +60,7 @@ export default {
 </script>
 
 <style lang="scss" module>
-$navWidth: 180px;
+$navWidth: 150px;
 $navShrinkWidth: 64px;
 $barHeight: 60px;
 $tagHeight: 35px;

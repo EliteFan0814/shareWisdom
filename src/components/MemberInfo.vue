@@ -14,7 +14,19 @@
 
 <script>
 export default {
-  props: ['avatar','name','phone'],
+  // props: ['avatar','name','phone'],
+  props: {
+    avatar: {
+      type: String
+    },
+    name: {
+      default: 'name 未设置'
+    },
+    phone: {
+      type: String,
+      default: 'name 未设置'
+    }
+  },
   name: 'memberInfo'
 }
 </script>

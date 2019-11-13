@@ -15,7 +15,7 @@
       :collapse-transition="false">
 
       <template v-for="(item, index) in navList">
-
+        <!-- 如果包含 child 内部展开二级菜单 -->
         <el-submenu v-if="item.children"
           :key="index"
           :index="item.index">
@@ -85,11 +85,11 @@ export default {
 }
 
 .logo {
-  margin: 40px 15% 20px 15%;  
+  margin: 20px 30% 10px;  
 }
 .img{
     width: 100%;
-    height: 100%;
+    // height: 100%;
     //border-radius: 20%;
   }
 </style>
