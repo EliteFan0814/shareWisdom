@@ -19,6 +19,7 @@
         <el-submenu v-if="item.children"
           :key="index"
           :index="item.index">
+          <!-- 父级菜单内容 -->
           <template slot="title">
             <img v-if="item.icon"
               :src="item.icon"

@@ -42,7 +42,7 @@ export default new Router({
           meta: { title: '外协信息' }
         },
 
-        // 服务信息
+        // 服务信息lalal
         {
           path: '/sharewisdominfo/ServiceInfo',
           name: 'ServiceInfo',

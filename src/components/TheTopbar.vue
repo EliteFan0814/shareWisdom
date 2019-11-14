@@ -2,7 +2,7 @@
   <div>
     <div :class="$style.topBar">
       <div :class="$style.breadcrumb">
-        <!-- <img svg :src="pic" @click="scrollNav"> -->
+        <img svg :src="pic" @click="scrollNav">
         <!-- <img home src="@/assets/-svg/home.svg"> -->
 
         <el-breadcrumb separator=">">
@@ -148,9 +148,9 @@ export default {
       })
     },
 
-    // scrollNav() {
-    //   this.$store.commit("SCROLL_NAV");
-    // },
+    scrollNav() {
+      this.$store.commit("SCROLL_NAV");
+    },
     changePwd() {
       this.$refs.pwd.validate(valid => {
         if (!valid) return false

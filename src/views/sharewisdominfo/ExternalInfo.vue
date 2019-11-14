@@ -68,6 +68,7 @@
         :rowInfo="item"
         @close="closeDia"></AddOrEdit>
       <BasePagination :max="totalPage"
+        :totalCount="totalCount"
         :now.sync="nowPage"></BasePagination>
     </el-card>
   </div>
@@ -90,12 +91,13 @@ export default {
       nowPage: 1,
       totalPage: 1,
       pageSize: 10,
+      totalCount: 1,
       item: {},
       infoData: [
         {
           avatar: '',
-          name: '',
-          phone: '',
+          name: undefined,
+          phone: undefined,
           id: 0,
           title: '第一条信息',
           content: `桃花坞里桃花庵，桃花庵下桃花仙；桃花仙人种桃树，又摘桃花卖酒钱。 

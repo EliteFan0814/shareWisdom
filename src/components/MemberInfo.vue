@@ -20,11 +20,12 @@ export default {
       type: String
     },
     name: {
-      default: 'name 未设置'
+      type: String,
+      default: 'name 未设置',
     },
     phone: {
       type: String,
-      default: 'name 未设置'
+      default: 'phone 未设置'
     }
   },
   name: 'memberInfo'
