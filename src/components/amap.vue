@@ -1,51 +1,121 @@
 <template>
-  <div>
     <div class="amap-wrapper">
-      <el-amap vid="amapDemo"
+      <el-amap class="amap-demo"
+        vid="amapDemo"
         :zoom="zoom"
-        class="amap-demo"
+        :center="center"
+        :plugin="plugin"
         :events="events">
-        <el-amap-marker v-for="(item,index) in arr"
-          :key="index"
-          :position="item"
-          :events="markerEcents"
-          :vid="index"></el-amap-marker>
+        <el-amap-marker vid="amap-wrapper"
+          :position="center">
+        </el-amap-marker>
       </el-amap>
+      <span v-if="is_click">当前位置：{{address}}</span>
     </div>
-  </div>
 </template>
 
 <script>
 export default {
   props: {
-    arr: {
-      default: []
+    map_lng: {
+      default: ''
+    },
+    map_lat: {
+      default: ''
+    }
+  },
+  created() {
+    if (this.map_lng && this.map_lat) {
+      this.lng = this.map_lng
+      this.lat = this.map_lat
+      this.center = [this.lng, this.lat]
+    }
+  },
+  computed: {
+    location_info() {
+      return {
+        is_click:this.is_click,
+        add_lon: this.lng,
+        add_lat: this.lat,
+        address: this.address,
+        province_id: this.province_id,
+        city_id: this.city_id,
+        county_id: this.county_id,
+      }
     }
   },
   data() {
+    let self = this
     return {
-      bool: false,
-      coordinate: [],
-      zoom: 15,
+      is_click: false,
+      loaded: false,
+      inner_lng_lat: [],
+      center: [116.396732, 39.907478],
+      address: '',
+      lng: 0,
+      lat: 0,
+      adcode: '',
+      province_id: '',
+      city_id: '',
+      county_id: '',
+      zoom: 12,
       events: {
         click: e => {
-          // alert(typeof(this.arr))
-          // console.log('维度'+e.lnglat.lat)
-          // console.log('精度'+e.lnglat.lng)
-          this.coordinate = []
-          this.coordinate.push(e.lnglat.lng)
-          this.coordinate.push(e.lnglat.lat)
-          this.bool = true
-          this.arr.push({ ...this.coordinate })
-          this.$emit('send', this.arr)
+          this.lng = e.lnglat.lng
+          this.lat = e.lnglat.lat
+          this.center = [this.lng, this.lat]
+          this.is_click = true
+
+          // 这里通过高德 SDK 完成。
+          var geocoder = new AMap.Geocoder({
+            radius: 1000,
+            extensions: 'all'
+          })
+          geocoder.getAddress([this.lng, this.lat], function(status, result) {
+            if (status === 'complete' && result.info === 'OK') {
+              if (result && result.regeocode) {
+                self.adcode = result.regeocode.addressComponent.adcode
+                self.address = result.regeocode.formattedAddress
+                self.$nextTick()
+              }
+            }
+          })
+
+          // 根据 adcode 切换成 province_id city_id  county_id
+          this.$http
+            .post('/company/region/byCode', {
+              adcode: this.adcode
+            })
+            .then(res => {
+              let list = res.data
+              this.province_id = list.province_info.id
+              this.city_id = list.city_info.id
+              this.county_id = list.county_info.id
+              this.$emit('getPosition', this.location_info)
+              // console.log('location_info', this.location_info)
+            })
+            .catch(err => {})
         }
       },
-      markerEcents: {
-        click: e => {
-          this.arr.splice(e.target.Uh.vid, 1)
-          this.$emit('send', this.arr)
+      plugin: [
+        {
+          // 初始定位
+          pName: 'Geolocation',
+          events: {
+            init(o) {
+              o.getCurrentPosition((status, result) => {
+                if (result && result.position) {
+                  self.lng = result.position.lng
+                  self.lat = result.position.lat
+                  self.center = [self.lng, self.lat]
+                  self.loaded = true
+                  self.$nextTick()
+                }
+              })
+            }
+          }
         }
-      }
+      ]
     }
   },
   methods: {
@@ -58,7 +128,7 @@ export default {
 
 <style scoped lang="scss">
 .amap-wrapper {
-  width: 100%;
-  height: 800px;
+  width: 90%;
+  height: 300px;
 }
 </style>

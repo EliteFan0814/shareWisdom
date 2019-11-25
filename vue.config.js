@@ -8,8 +8,7 @@ module.exports = {
   // 代理跨域
   devServer: {
     // 目标服务器
-    proxy: 'http://192.168.0.209:8082/'
-    // proxy: 'http://app.jdbtoy888.com'
+    proxy: 'http://zaihe.demo2.dx623.com'
   },
 
   // js source-map

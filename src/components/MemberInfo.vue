@@ -7,6 +7,7 @@
       src="@/assets/logo.png">
     <div class="mbInfoText">
       <span class="mbInfoName">{{name}}</span>
+      <span class="mbInfoPosition">{{position}}</span>
       <span class="mbInfoMobile">{{phone}}</span>
     </div>
   </div>
@@ -23,6 +24,10 @@ export default {
       type: String,
       default: 'name 未设置',
     },
+    position:{
+      type: String,
+      default: 'position 未设置',
+    },
     phone: {
       type: String,
       default: 'phone 未设置'
@@ -36,13 +41,14 @@ export default {
 .memberInfo {
   white-space: nowrap;
   font-size: 12px;
+  line-height: 16px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   img {
     width: 50px;
     height: 50px;
-    margin: 5px 10px;
+    margin: 0 5px;
   }
   .mbInfoText {
     display: flex;

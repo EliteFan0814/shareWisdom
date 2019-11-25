@@ -83,19 +83,16 @@ export default {
 
     login() {
       this.$http
-        .post("/api/Login/AuthenticateLoginName", {
-          loginName: this.loginForm.username,
-          pwd: this.loginForm.password
+        .post("/base/pub/login", {
+          account: this.loginForm.username,
+          password: this.loginForm.password
         })
         .then(res => {
           // this.$store.state.username = this.loginForm.username;
           this.SET_USER_NAME({userName:this.loginForm.username})
-          if (res.message == "ok") {
-            // this.$http.get("/manage/common/info").then(res => {
-            //   this.$store.state.userGrade = res.data.name;
-            // });
+          if (res.code) {
             this.LOG_IN({
-              token: res.token
+              token: res.data.token
             });
             this.$router.push("/");
           }

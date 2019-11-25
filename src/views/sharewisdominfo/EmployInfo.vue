@@ -5,10 +5,52 @@
         :class="$style.header">
         <div :class="$style.search">
           <span>搜索：</span>
-          <el-input v-model="SearchKey"
-            placeholder="输入标题内容"
+          <el-input v-model="search_key"
+            placeholder="输入发布人姓名/电话"
             @change="filterData"
             clearable />
+
+          <el-select v-model="worker_id"
+            placeholder="选择工种"
+            @change="filterData"
+            clearable>
+            <el-option v-for="item in worker_class"
+              :label="item.name"
+              :value="item.worker_id"></el-option>
+          </el-select>
+
+          <el-select v-model="province_id"
+          style="margin-left:20px;"
+            placeholder="选择省份"
+            @clear="isClearProvinceId"
+            @change="getCityList"
+            clearable>
+            <el-option v-for="item in province_list"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+
+          <el-select v-model="city_id"
+            placeholder="选择市"
+            @clear="isClearCityId"
+            @change="getDistrictList"
+            :disabled="province_id?false:true"
+            clearable>
+            <el-option v-for="item in city_list"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+
+          <el-select v-model="district_id"
+            placeholder="选择区县"
+            @change="filterData"
+            :disabled="province_id && city_id?false:true"
+            clearable>
+            <el-option v-for="item in district_list"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+
         </div>
         <el-button @click="filterData"
           type="primary">
@@ -22,28 +64,62 @@
         </el-button>
       </div>
 
-      <el-table :data="infoData">
+      <el-table :data="info_data">
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form label-position="left"
+              inline
+              class="demo-table-expand">
+              <el-form-item label="公司地址：">
+                <span>{{ props.row.address }}</span>
+              </el-form-item>
+              <el-form-item label="发布时间：">
+                <span>{{ props.row.create_time }}</span>
+              </el-form-item>
+              <el-form-item label="更新时间：">
+                <span>{{ props.row.update_time }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
         <el-table-column label="发布者"
+          min-width="120"
           align="center">
           <template slot-scope="{row}">
             <MemberInfo :avatar="row.avatar"
-              :name="row.name"
+              :name="row.linkman"
+              :position="row.position"
               :phone="row.phone"></MemberInfo>
           </template>
         </el-table-column>
-        <el-table-column label="信息ID"
-          prop="id"
+        <el-table-column label="公司名称"
+          prop="company_name"
           align="center"
           class="imgbox">
         </el-table-column>
-        <el-table-column label="信息标题"
+        <el-table-column label="标题"
           prop="title"
-          min-width="120"
           align="center">
         </el-table-column>
         </el-table-column>
-        <el-table-column label="创建时间"
-          prop="createdDate"
+        <el-table-column label="招聘人数"
+          prop="number"
+          align="center">
+        </el-table-column>
+        <el-table-column label="佣工类型"
+          prop="type"
+          align="center">
+        </el-table-column>
+        <el-table-column label="薪水"
+          prop="salary"
+          align="center">
+        </el-table-column>
+        <el-table-column label="岗位"
+          prop="worker_name"
+          align="center">
+        </el-table-column>
+        <el-table-column label="招聘状态"
+          prop="status_str"
           align="center">
         </el-table-column>
         <el-table-column label="操作"
@@ -64,12 +140,13 @@
         </el-table-column>
       </el-table>
       <!-- 弹出 添加|编辑 器 -->
-      <AddOrEdit v-if="isEditShow"
+      <AddOrEdit v-if="is_edit_show"
+        :worker_class = "worker_class"
         :rowInfo="item"
         @close="closeDia"></AddOrEdit>
-      <BasePagination :max="totalPage"
-        :totalCount="totalCount"
-        :now.sync="nowPage"></BasePagination>
+      <BasePagination :max="total_page"
+        :total_count="total_count"
+        :now.sync="now_page"></BasePagination>
     </el-card>
   </div>
 </template>
@@ -86,14 +163,22 @@ export default {
   },
   data() {
     return {
-      isEditShow: false,
-      SearchKey: '',
-      nowPage: 1,
-      totalPage: 1,
-      pageSize: 10,
-      totalCount: 1,
+      is_edit_show: false,
+      now_page: 1,
+      total_page: 1,
+      page_size: 10,
+      search_key: '',
+      worker_id: '',
+      province_id: '',
+      city_id: '',
+      district_id: '',
+      total_count: 1,
+      worker_class: [],
+      province_list: [],
+      city_list: [],
+      district_list: [],
       item: {},
-      infoData: [
+      info_data: [
         {
           avatar: '',
           name: undefined,
@@ -134,39 +219,94 @@ export default {
     }
   },
   watch: {
-    nowPage() {
+    now_page() {
       this.getData()
     }
   },
   created() {
-    // this.getData()
+    this.getData()
+    this.getWorkerClass()
+    this.getProvinceList()
   },
   methods: {
     getData() {
-      this.infoData = []
+      this.info_data = []
       // ----------获取列表接口----------
-      // this.$http
-      //   .get('/api/Goods/GoodsList', {
-      //     params: {
-      //       page: this.nowPage,
-      //       pageSize: 10,
-      //       SearchKey: this.SearchKey
-      //     }
-      //   })
-      //   .then(res => {
-      //     this.infoData = res.value.data
-      //     this.totalPage = res.value.totalPage
-      //   })
+      this.$http
+        .get('/company/recruit/lists', {
+          params: {
+            page: this.now_page,
+            rows: this.page_size,
+            keywords: this.search_key,
+            worker_id: this.worker_id,
+            province_id: this.province_id,
+            city_id: this.city_id,
+            county_id: this.district_id
+          }
+        })
+        .then(res => {
+          this.info_data = res.data.lists
+          this.total_page = res.data.page_total
+          this.total_count = res.data.total
+        })
     },
     filterData() {
-      this.nowPage === 1 ? this.getData() : (this.nowPage = 1)
+      this.now_page === 1 ? this.getData() : (this.now_page = 1)
+    },
+    getWorkerClass() {
+      this.$http.get('/company/worker/lists').then(res => {
+        this.worker_class = res.data
+      })
+    },
+    // create 时就创建省列表
+    getProvinceList() {
+      if (this.province_id === '') {
+        this.$http.get('/company/region/lists').then(res => {
+          this.province_list = res.data.lists
+        })
+      }else{
+
+      }
+    },
+    isClearProvinceId(){
+      this.city_id = '',
+      this.district_id = ''
+    },
+    getCityList(province) {
+      if (province) {
+        this.$http
+          .get('/company/region/lists', {
+            params: {
+              parent_id: province
+            }
+          })
+          .then(res => {
+            this.city_list = res.data.lists
+          })
+      }
+      if (!province) {
+      }
+    },
+    isClearCityId(){
+      this.district_id = ''
+    },
+    getDistrictList(city) {
+      this.$http
+        .get('/company/region/lists', {
+          params: {
+            parent_id: city
+          }
+        })
+        .then(res => {
+          this.district_list = res.data.lists
+        })
     },
     addOrEdit(row) {
       this.item = row
-      this.isEditShow = true
+      this.is_edit_show = true
     },
     closeDia(update) {
-      this.isEditShow = false
+      this.is_edit_show = false
       if (update) this.getData()
     },
     deleteRow(row) {
@@ -234,7 +374,7 @@ export default {
   }
 }
 </style>
-<style scoped>
+<style lang="scss" scoped>
 .inp {
   width: 80%;
 }
@@ -256,6 +396,13 @@ export default {
 }
 .img {
   width: 80px;
+}
+.demo-table-expand {
+  .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;
+  }
 }
 </style>
 

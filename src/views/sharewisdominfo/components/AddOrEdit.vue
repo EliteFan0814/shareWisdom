@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="rowInfo.title?'编辑当前文章':'添加新文章'"
+  <el-dialog :title="rowInfo.title?'编辑当前职位':'发布新职位'"
     :visible.sync="isDialog"
     :close-on-click-modal="false"
     @close="close"
@@ -9,19 +9,54 @@
       :model="innerRowInfo"
       ref="rowInfo"
       label-position="right"
-      label-width="15%">
+      label-width="12%">
       <el-form-item label="标题："
         prop="title">
-        <el-input class="inp"
-          placeholder="请输入标题"
+        <el-input placeholder="请输入标题"
           v-model="innerRowInfo.title"></el-input>
       </el-form-item>
-      <el-form-item label="图文详情："
-        prop="content">
-        <Editor id="tinymce"
-          :content="innerRowInfo.content"
-          @changed="(value)=>{innerRowInfo.content=value}"
-          class="quillEditor"></Editor>
+      <el-form-item label="工种："
+        prop="worker_id">
+        <el-select v-model="rules.region"
+          placeholder="请选择工种">
+          <el-option v-for="item in worker_class"
+            :label="item.name"
+            :value="item.worker_id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所需人数"
+        prop="number">
+        <el-input placeholder="请输入所需人数"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="薪资"
+        prop="salary">
+        <el-input placeholder="请输入薪资"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="公司名称"
+        prop="company_name">
+        <el-input placeholder="请输入公司名称"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="联系人"
+        prop="linkman">
+        <el-input placeholder="请输入联系人"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="联系电话"
+        prop="phone">
+        <el-input placeholder="请输入联系电话"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="职位"
+        prop="position">
+        <el-input placeholder="请输入职位"
+          v-model="innerRowInfo.title"></el-input>
+      </el-form-item>
+      <el-form-item label="公司地址："
+        prop="map_location">
+        <Amap @getPosition="readPosition"></Amap>
       </el-form-item>
     </el-form>
     <span slot="footer"
@@ -36,13 +71,15 @@
 
 <script>
 import Editor from '@/components/RichText'
+import Amap from '@/components/amap'
 export default {
   components: {
-    Editor
+    Editor,
+    Amap
   },
-  props: ['rowInfo'],
+  props: ['rowInfo', 'worker_class'],
   created() {
-    if (this.rowInfo.title) {
+    if (this.rowInfo.recruit_id) {
       this.innerRowInfo = JSON.parse(JSON.stringify(this.rowInfo))
     }
   },
@@ -50,18 +87,34 @@ export default {
     return {
       innerRowInfo: {
         title: '',
-        content: ''
+        worker_id: '',
+        number: '',
+        salary: '',
+        company_name: '',
+        linkman: '',
+        phone: '',
+        position: '',
       },
       isDialog: true,
       rules: {
         title: [{ required: true, message: '请输入标题' }],
-        content: [{ required: true, message: '请编写文章详情' }]
+        worker_id: [{ required: true, message: '请选择工种' }],
+        number: [{ required: true, message: '请输入电话' }],
+        salary: [{ required: true, message: '请输入薪水' }],
+        company_name: [{ required: true, message: '请输入公司名称' }],
+        linkman: [{ required: true, message: '请输入联系人' }],
+        phone: [{ required: true, message: '请输入电话' }],
+        position: [{ required: true, message: '请输入职位' }],
       }
     }
   },
   methods: {
     close() {
       this.$emit('close')
+    },
+    readPosition(location_info) {
+      Object.assign(this.innerRowInfo,location_info)
+      console.log('父组件', this.innerRowInfo)
     },
     submit(refName) {
       this.$refs[refName].validate(valid => {
@@ -99,7 +152,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .icon {
   border: 1px dashed #888;
   width: 200px;
@@ -118,8 +171,16 @@ img {
   height: 200px;
   cursor: pointer;
 }
-.inp {
-  width: 90%;
+.el-form-item {
+  margin-bottom: 20px;
+  .el-input {
+    width: 90%;
+  }
+}
+
+.inner-input {
+  display: inline-block;
+  width: 20%;
 }
 i {
   width: 150px;
@@ -135,6 +196,10 @@ i {
 }
 .ship {
   margin-left: 30px;
+}
+.amap-box {
+  width: 90%;
+  height: 300px;
 }
 </style>
 

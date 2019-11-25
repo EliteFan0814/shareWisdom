@@ -18,6 +18,7 @@ const request = axios.create({
 request.interceptors.request.use(
   config => {
     if (config.method == "post") {
+      // 如果不是 formData 格式则进入
       if (!(config.data instanceof FormData)) {
         config.data = Qs.stringify(config.data)
         config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -49,12 +50,11 @@ request.interceptors.response.use(
       Message.error(res.data.msg)
     }
 
-    if (res.data.success || res.data.code === 1) return res.data
+    if ( res.data.code === 1) return res.data
     return Promise.reject(res.data)
   },
   err => {
     // token 失效
-
     if (err.response) {
       if (err.response.status === 401) {
         Message.error('请重新登陆')

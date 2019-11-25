@@ -82,8 +82,10 @@ export default {
   created() {
     this.$http.post('/api/Login/GetMyInfo').then(res => {
       this.username = res.user.name
+    }).catch(err=>{
+      
     })
-    // this.username = this.$route.query.data;
+    // this.username = this.$store.state.username
   },
   data() {
     const repassword = (rule, value, callback) => {
