@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="rowInfo.title?'编辑当前职位':'发布新职位'"
+  <el-dialog :title="rowInfo.recruit_id?'编辑当前职位':'发布新职位'"
     :visible.sync="isDialog"
     :close-on-click-modal="false"
     @close="close"
@@ -17,46 +17,56 @@
       </el-form-item>
       <el-form-item label="工种："
         prop="worker_id">
-        <el-select v-model="rules.region"
+        <el-select v-model="innerRowInfo.worker_id"
           placeholder="请选择工种">
           <el-option v-for="item in worker_class"
             :label="item.name"
             :value="item.worker_id"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="工期："
+        prop="type">
+        <el-select v-model="innerRowInfo.type"
+          placeholder="请选择工期">
+          <el-option label="长期"
+            value="长期"></el-option>
+          <el-option label="短期"
+            value="短期"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="所需人数"
         prop="number">
         <el-input placeholder="请输入所需人数"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.number"></el-input>
       </el-form-item>
       <el-form-item label="薪资"
         prop="salary">
         <el-input placeholder="请输入薪资"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.salary"></el-input>
       </el-form-item>
       <el-form-item label="公司名称"
         prop="company_name">
         <el-input placeholder="请输入公司名称"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.company_name"></el-input>
       </el-form-item>
       <el-form-item label="联系人"
         prop="linkman">
         <el-input placeholder="请输入联系人"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.linkman"></el-input>
       </el-form-item>
       <el-form-item label="联系电话"
         prop="phone">
         <el-input placeholder="请输入联系电话"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.phone"></el-input>
       </el-form-item>
       <el-form-item label="职位"
         prop="position">
         <el-input placeholder="请输入职位"
-          v-model="innerRowInfo.title"></el-input>
+          v-model="innerRowInfo.position"></el-input>
       </el-form-item>
       <el-form-item label="公司地址："
         prop="map_location">
-        <Amap @getPosition="readPosition"></Amap>
+        <Amap @getPosition="readPosition" :trans_ad="innerRowInfo.address" :map_lng="innerRowInfo.add_lon" :map_lat="innerRowInfo.add_lat"></Amap>
       </el-form-item>
     </el-form>
     <span slot="footer"
@@ -89,22 +99,24 @@ export default {
         title: '',
         worker_id: '',
         number: '',
+        type:'',
         salary: '',
         company_name: '',
         linkman: '',
         phone: '',
-        position: '',
+        position: ''
       },
       isDialog: true,
       rules: {
         title: [{ required: true, message: '请输入标题' }],
         worker_id: [{ required: true, message: '请选择工种' }],
+        type: [{ required: true, message: '请选择工期类型' }],
         number: [{ required: true, message: '请输入电话' }],
         salary: [{ required: true, message: '请输入薪水' }],
         company_name: [{ required: true, message: '请输入公司名称' }],
         linkman: [{ required: true, message: '请输入联系人' }],
         phone: [{ required: true, message: '请输入电话' }],
-        position: [{ required: true, message: '请输入职位' }],
+        position: [{ required: true, message: '请输入职位' }]
       }
     }
   },
@@ -113,38 +125,56 @@ export default {
       this.$emit('close')
     },
     readPosition(location_info) {
-      Object.assign(this.innerRowInfo,location_info)
+      Object.assign(this.innerRowInfo, location_info)
       console.log('父组件', this.innerRowInfo)
     },
     submit(refName) {
+      console.log(this.innerRowInfo)
+      if (!this.innerRowInfo.is_click) {
+        this.$alert('请定位公司地址', '请输入地址', {
+          confirmButtonText: '确定'
+        })
+        return
+      }
       this.$refs[refName].validate(valid => {
         if (!valid) return
         let params = new FormData()
         params.append('title', this.innerRowInfo.title)
-        params.append('Content', this.innerRowInfo.content)
+        params.append('worker_id', this.innerRowInfo.worker_id)
+        params.append('number', this.innerRowInfo.number)
+        params.append('type', this.innerRowInfo.type)
+        params.append('salary', this.innerRowInfo.salary)
+        params.append('company_name', this.innerRowInfo.company_name)
+        params.append('linkman', this.innerRowInfo.linkman)
+        params.append('phone', this.innerRowInfo.phone)
+        params.append('add_lon', this.innerRowInfo.add_lon)
+        params.append('add_lat', this.innerRowInfo.add_lat)
+        params.append('address', this.innerRowInfo.address)
+        params.append('position', this.innerRowInfo.position)
+        params.append('province_id', this.innerRowInfo.province_id)
+        params.append('city_id', this.innerRowInfo.city_id)
+        params.append('county_id', this.innerRowInfo.county_id)
         // ----------查看修改文章接口----------
-        if (this.innerRowInfo.id) {
-          // params.append('id', this.innerRowInfo.id)
-          // this.$http.post('/api/Goods/Modify', params).then(res => {
-          //   if (res.success) {
-          //     this.$message({
-          //       type: 'success',
-          //       message: '修改成功!'
-          //     })
-          //     this.$emit('close', '1')
-          //   }
-          // })
+        if (this.innerRowInfo.recruit_id) {
+          params.append('recruit_id', this.innerRowInfo.recruit_id)
+          this.$http.post('/company/recruit/edit', params).then(res => {
+            if (res.code) {
+              console.log(res)
+              // this.$message({
+              //   type: 'success',
+              //   message: '修改成功!'
+              // })
+              this.$emit('close', '1')
+            }
+          })
         } else {
           // ----------添加新文章接口----------
-          // this.$http.post('/api/Goods/Create', params).then(res => {
-          //   if (res.success) {
-          //     this.$message({
-          //       type: 'success',
-          //       message: '添加成功!'
-          //     })
-          //     this.$emit('close', '1')
-          //   }
-          // })
+          this.$http.post('/company/recruit/apply', params).then(res => {
+            console.log(res)
+            if (res.code) {
+              this.$emit('close', '1')
+            }
+          })
         }
       })
     }

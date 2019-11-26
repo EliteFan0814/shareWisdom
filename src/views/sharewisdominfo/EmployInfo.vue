@@ -20,7 +20,7 @@
           </el-select>
 
           <el-select v-model="province_id"
-          style="margin-left:20px;"
+            style="margin-left:20px;"
             placeholder="选择省份"
             @clear="isClearProvinceId"
             @change="getCityList"
@@ -82,7 +82,7 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column label="发布者"
+        <!-- <el-table-column label="发布者"
           min-width="120"
           align="center">
           <template slot-scope="{row}">
@@ -96,7 +96,7 @@
           prop="company_name"
           align="center"
           class="imgbox">
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="标题"
           prop="title"
           align="center">
@@ -118,6 +118,11 @@
           prop="worker_name"
           align="center">
         </el-table-column>
+        <el-table-column label="推广天数"
+          width="80"
+          prop="spread_day"
+          align="center">
+        </el-table-column>
         <el-table-column label="招聘状态"
           prop="status_str"
           align="center">
@@ -126,10 +131,17 @@
           width="300"
           align="center">
           <template slot-scope="{row}">
-            <el-button @click="addOrEdit(row)"
+            <el-button v-if="!row.is_time"
+              @click="addOrEdit(row)"
               size="mini"
               type="primary">
-              查看 | 修改
+              修改
+            </el-button>
+            <el-button v-if="!row.is_spread"
+              @click="spread(row)"
+              size="mini"
+              type="success">
+              推广
             </el-button>
             <el-button @click="deleteRow(row)"
               size="mini"
@@ -141,9 +153,14 @@
       </el-table>
       <!-- 弹出 添加|编辑 器 -->
       <AddOrEdit v-if="is_edit_show"
-        :worker_class = "worker_class"
+        :worker_class="worker_class"
         :rowInfo="item"
         @close="closeDia"></AddOrEdit>
+      <!-- 弹出推广 -->
+      <Spread v-if="is_spread_show"
+        :now_title="item"
+        :spread_list="spread_config"
+        @close="closeDia"></Spread>
       <BasePagination :max="total_page"
         :total_count="total_count"
         :now.sync="now_page"></BasePagination>
@@ -151,19 +168,21 @@
   </div>
 </template>
 <script>
-import MemberInfo from '@/components/MemberInfo'
+// import MemberInfo from '@/components/MemberInfo'
 import AddOrEdit from './components/AddOrEdit'
+import Spread from './components/Spread'
 import BasePagination from '@/components/BasePagination'
 
 export default {
   components: {
-    MemberInfo,
     AddOrEdit,
+    Spread,
     BasePagination
   },
   data() {
     return {
       is_edit_show: false,
+      is_spread_show: false,
       now_page: 1,
       total_page: 1,
       page_size: 10,
@@ -178,6 +197,8 @@ export default {
       city_list: [],
       district_list: [],
       item: {},
+      spread_state: 'c',
+      spread_config: [],
       info_data: [
         {
           avatar: '',
@@ -225,6 +246,7 @@ export default {
   },
   created() {
     this.getData()
+    this.getConfigList()
     this.getWorkerClass()
     this.getProvinceList()
   },
@@ -264,13 +286,11 @@ export default {
         this.$http.get('/company/region/lists').then(res => {
           this.province_list = res.data.lists
         })
-      }else{
-
+      } else {
       }
     },
-    isClearProvinceId(){
-      this.city_id = '',
-      this.district_id = ''
+    isClearProvinceId() {
+      ;(this.city_id = ''), (this.district_id = '')
     },
     getCityList(province) {
       if (province) {
@@ -287,7 +307,7 @@ export default {
       if (!province) {
       }
     },
-    isClearCityId(){
+    isClearCityId() {
       this.district_id = ''
     },
     getDistrictList(city) {
@@ -301,16 +321,36 @@ export default {
           this.district_list = res.data.lists
         })
     },
+    getConfigList() {
+      this.$http
+        .get('/company/company/params', {
+          params: {
+            state: this.spread_state
+          }
+        })
+        .then(res => {
+          if (res.code) {
+            this.spread_config = res.data.lists
+          }
+        })
+    },
     addOrEdit(row) {
-      this.item = row
+      if (row.recruit_id) {
+        this.item = row
+      }
       this.is_edit_show = true
+    },
+    spread(row) {
+      this.is_spread_show = true
+      this.item = row
     },
     closeDia(update) {
       this.is_edit_show = false
+      this.is_spread_show = false
       if (update) this.getData()
     },
     deleteRow(row) {
-      this.$confirm('确定删除商品 ' + row.name + ' 吗?', '提示', {
+      this.$confirm('确定删除' + row.title + ' 吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         closeOnClickModal: false,
@@ -318,17 +358,13 @@ export default {
       })
         .then(() => {
           // ----------删除接口----------
-          // this.$http
-          //   .post('/api/Goods/Delete', {
-          //     goodsId: row.id
-          //   })
-          //   .then(() => {
-          //     this.$message({
-          //       type: 'success',
-          //       message: '删除成功!'
-          //     })
-          //     this.getData()
-          //   })
+          this.$http
+            .post('/company/recruit/del', {
+              recruit_id: row.recruit_id
+            })
+            .then(() => {
+              this.getData()
+            })
         })
         .catch(() => {
           this.$message({
