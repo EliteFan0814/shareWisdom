@@ -32,8 +32,8 @@
 <script>
 export default {
   props: {
-    now_title:{
-      default:{}
+    now_title: {
+      default: {}
     },
     spread_list: {
       default: []
@@ -42,19 +42,30 @@ export default {
   data() {
     return {
       dialogFormVisible: true,
-      spread_id: '',
+      spread_id: ''
     }
   },
   methods: {
     close() {
       this.$emit('close')
     },
-    submit(){
-      if(this.spread_id !== ''){
-        this.dialogFormVisible = false
-      }else{
-         this.$alert('请选择推广天数', '请选择', {
-          confirmButtonText: '确定'})
+    submit() {
+      if (this.spread_id !== '') {
+        this.$http
+          .post('/company/recruit/spread', {
+            recruit_id: this.now_title.recruit_id,
+            param_id: this.spread_id
+          })
+          .then(res => {
+            if (res.code) {
+              this.dialogFormVisible = false
+              this.$emit('close','1')
+            }
+          })
+      } else {
+        this.$alert('请选择推广天数', '请选择', {
+          confirmButtonText: '确定'
+        })
       }
     }
   }

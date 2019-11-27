@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="rowInfo.recruit_id?'编辑当前职位':'发布新职位'"
+  <el-dialog :title="rowInfo.order_id?'编辑当前职位':'发布新职位'"
     :visible.sync="isDialog"
     :close-on-click-modal="false"
     @close="close"
@@ -15,55 +15,67 @@
         <el-input placeholder="请输入标题"
           v-model="innerRowInfo.title"></el-input>
       </el-form-item>
-      <el-form-item label="工种："
-        prop="worker_id">
-        <el-select v-model="innerRowInfo.worker_id"
-          placeholder="请选择工种">
-          <el-option v-for="item in worker_class"
+      <el-form-item label="行业："
+        prop="trade_id">
+        <el-select v-model="innerRowInfo.trade_id"
+          placeholder="请选择行业">
+          <el-option v-for="item in trade_class"
             :label="item.name"
-            :value="item.worker_id"></el-option>
+            :value="item.trade_id"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="工期："
-        prop="type">
-        <el-select v-model="innerRowInfo.type"
-          placeholder="请选择工期">
-          <el-option label="长期"
-            value="长期"></el-option>
-          <el-option label="短期"
-            value="短期"></el-option>
-        </el-select>
+      <el-form-item label="工期要求："
+        prop="project_ask">
+        <el-input placeholder="请输入工期要求"
+          v-model="innerRowInfo.project_ask"></el-input>
       </el-form-item>
-      <el-form-item label="所需人数"
+      <el-form-item label="所需人数："
         prop="number">
         <el-input placeholder="请输入所需人数"
           v-model="innerRowInfo.number"></el-input>
       </el-form-item>
-      <el-form-item label="薪资"
-        prop="salary">
-        <el-input placeholder="请输入薪资"
-          v-model="innerRowInfo.salary"></el-input>
+      <el-form-item label="费用预算："
+        prop="price">
+        <el-input placeholder="请输入费用预算"
+          v-model="innerRowInfo.price"></el-input>
       </el-form-item>
-      <el-form-item label="公司名称"
+      <el-form-item label="公司名称："
         prop="company_name">
         <el-input placeholder="请输入公司名称"
           v-model="innerRowInfo.company_name"></el-input>
       </el-form-item>
-      <el-form-item label="联系人"
+      <el-form-item label="联系人："
         prop="linkman">
         <el-input placeholder="请输入联系人"
           v-model="innerRowInfo.linkman"></el-input>
       </el-form-item>
-      <el-form-item label="联系电话"
+      <el-form-item label="联系电话："
         prop="phone">
         <el-input placeholder="请输入联系电话"
           v-model="innerRowInfo.phone"></el-input>
       </el-form-item>
-      <el-form-item label="职位"
+      <el-form-item label="职位："
         prop="position">
         <el-input placeholder="请输入职位"
           v-model="innerRowInfo.position"></el-input>
       </el-form-item>
+
+      <el-form-item label="添加图纸："
+        prop="picture_json">
+        <el-upload action="https://jsonplaceholder.typicode.com/posts/"
+          list-type="picture-card"
+          :on-preview="handlePictureCardPreview"
+          :http-request="uploadPic"
+          :on-remove="removeImg">
+          <i class="el-icon-plus"></i>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible">
+          <img width="100%"
+            :src="dialogImageUrl"
+            alt="">
+        </el-dialog>
+      </el-form-item>
+
       <el-form-item label="公司地址："
         prop="map_location">
         <Amap @getPosition="readPosition"
@@ -90,9 +102,9 @@ export default {
     Editor,
     Amap
   },
-  props: ['rowInfo', 'worker_class'],
+  props: ['rowInfo', 'trade_class'],
   created() {
-    if (this.rowInfo.recruit_id) {
+    if (this.rowInfo.order_id) {
       this.innerRowInfo = JSON.parse(JSON.stringify(this.rowInfo))
     }
   },
@@ -100,19 +112,25 @@ export default {
     return {
       innerRowInfo: {
         title: '',
-        worker_id: '',
+        trade_id: '',
+        project_ask: '',
         number: '',
         type: '',
         salary: '',
         company_name: '',
         linkman: '',
         phone: '',
-        position: ''
+        position: '',
+        pic_list: []
       },
       isDialog: true,
+      dialogImageUrl: '',
+      dialogVisible: false,
+      before_up_pic: [],
       rules: {
         title: [{ required: true, message: '请输入标题' }],
-        worker_id: [{ required: true, message: '请选择工种' }],
+        trade_id: [{ required: true, message: '请选择工种' }],
+        project_ask: [{ required: true, message: '工期要求不能为空' }],
         type: [{ required: true, message: '请选择工期类型' }],
         number: [{ required: true, message: '请输入电话' }],
         salary: [{ required: true, message: '请输入薪水' }],
@@ -123,7 +141,21 @@ export default {
       }
     }
   },
+  computed:{
+    filter_before_up_pic(){
+      let res = []
+      for(let i = 0;i< this.before_up_pic.length;i++){
+        res.push(this.before_up_pic[i].url)
+      }
+      return res
+    }
+  },
   methods: {
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
+    },
+
     close() {
       this.$emit('close')
     },
@@ -131,12 +163,46 @@ export default {
       Object.assign(this.innerRowInfo, location_info)
       console.log('父组件', this.innerRowInfo)
     },
+    // 上传图片
+    uploadPic(upfiles) {
+      console.log('上传的图片信息：', upfiles)
+      let pic_info = {}
+      // this.before_up_pic.push(upfiles.file)
+      pic_info.uid = upfiles.file.uid
+      let fileObj = upfiles.file
+      let form = new FormData()
+      form.append('file', fileObj)
+      this.$http.post('/company/image/upload', form).then(res => {
+        if (res.code) {
+          // this.innerRowInfo.pic_list.push(res.data.fileurl)
+          // console.log('图片列表：', this.innerRowInfo.pic_list)
+          // console.log('res：', res)
+          pic_info.url = res.data.fileurl
+          this.before_up_pic.push(pic_info)
+          console.log('图片列表详情：', this.before_up_pic)
+        }
+      })
+    },
+    // 删除图片
+    removeImg(file, fileList) {
+      let del_uid = file.raw.uid
+      for (let i = 0; i < this.before_up_pic.length; i++) {
+        if (this.before_up_pic[i].uid === del_uid) {
+          this.before_up_pic.splice(i, 1)
+        }
+      }
+    },
     submit(refName) {
-      console.log(this.innerRowInfo)
       // 判断如果当前是添加信息的话，判断amap组件是否选择了地址
-      if (!this.rowInfo.recruit_id) {
+      if (!this.rowInfo.order_id) {
+        if (this.innerRowInfo.pic_list.length === 0) {
+          this.$alert('请上传图纸', '缺少信息', {
+            confirmButtonText: '确定'
+          })
+          return
+        }
         if (!this.innerRowInfo.is_click) {
-          this.$alert('请定位公司地址', '请输入地址', {
+          this.$alert('请定位公司地址', '缺少信息', {
             confirmButtonText: '确定'
           })
           return
@@ -147,7 +213,8 @@ export default {
         if (!valid) return
         let params = new FormData()
         params.append('title', this.innerRowInfo.title)
-        params.append('worker_id', this.innerRowInfo.worker_id)
+        params.append('trade_id', this.innerRowInfo.trade_id)
+        params.append('project_ask', this.innerRowInfo.project_ask)
         params.append('number', this.innerRowInfo.number)
         params.append('type', this.innerRowInfo.type)
         params.append('salary', this.innerRowInfo.salary)
@@ -158,12 +225,13 @@ export default {
         params.append('add_lat', this.innerRowInfo.add_lat)
         params.append('address', this.innerRowInfo.address)
         params.append('position', this.innerRowInfo.position)
+        params.append('picture_json', this.innerRowInfo.pic_list)
         params.append('province_id', this.innerRowInfo.province_id)
         params.append('city_id', this.innerRowInfo.city_id)
         params.append('county_id', this.innerRowInfo.county_id)
         // ----------查看修改文章接口----------
-        if (this.innerRowInfo.recruit_id) {
-          params.append('recruit_id', this.innerRowInfo.recruit_id)
+        if (this.innerRowInfo.order_id) {
+          params.append('order_id', this.innerRowInfo.order_id)
           this.$http.post('/company/recruit/edit', params).then(res => {
             if (res.code) {
               console.log(res)
@@ -176,7 +244,7 @@ export default {
           })
         } else {
           // ----------添加新文章接口----------
-          this.$http.post('/company/recruit/apply', params).then(res => {
+          this.$http.post('/company/order/apply', params).then(res => {
             console.log(res)
             if (res.code) {
               this.$emit('close', '1')

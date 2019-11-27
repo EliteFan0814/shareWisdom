@@ -5,14 +5,14 @@
         :class="$style.header">
         <div :class="$style.search">
           <span>搜索：</span>
-          <el-input v-model="search_key"
+          <!-- <el-input v-model="search_key"
             placeholder="输入发布人姓名/电话"
             @change="filterData"
-            clearable />
+            clearable /> -->
 
           <el-select v-model="worker_id"
+           @clear="filterData"
             placeholder="选择工种"
-            @change="filterData"
             clearable>
             <el-option v-for="item in worker_class"
               :label="item.name"
@@ -43,7 +43,6 @@
 
           <el-select v-model="district_id"
             placeholder="选择区县"
-            @change="filterData"
             :disabled="province_id && city_id?false:true"
             clearable>
             <el-option v-for="item in district_list"
@@ -161,8 +160,9 @@
         :now_title="item"
         :spread_list="spread_config"
         @close="closeDia"></Spread>
+        <!-- 分页 -->
       <BasePagination :max="total_page"
-        :total_count="total_count"
+        :totalCount="total_count"
         :now.sync="now_page"></BasePagination>
     </el-card>
   </div>
@@ -273,7 +273,13 @@ export default {
         })
     },
     filterData() {
+      if((this.province_id&&this.city_id&&this.district_id)||!this.province_id){
       this.now_page === 1 ? this.getData() : (this.now_page = 1)
+      }else{
+        this.$alert('请选择具体省/市/区县', '信息不完整', {
+          confirmButtonText: '确定'
+        })
+      }
     },
     getWorkerClass() {
       this.$http.get('/company/worker/lists').then(res => {
@@ -319,6 +325,7 @@ export default {
         })
         .then(res => {
           this.district_list = res.data.lists
+          console.log('district_list',this.district_list)
         })
     },
     getConfigList() {
@@ -350,7 +357,7 @@ export default {
       if (update) this.getData()
     },
     deleteRow(row) {
-      this.$confirm('确定删除' + row.title + ' 吗?', '提示', {
+      this.$confirm('确定删除 ' + row.title + ' 吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         closeOnClickModal: false,

@@ -32,7 +32,7 @@ export default {
       this.lng = this.map_lng
       this.lat = this.map_lat
       if (this.trans_ad) {
-        this.address = this.trans_ad
+        this.address = this.trans_ad 
       }
       this.center = [this.lng, this.lat]
     }
@@ -91,6 +91,7 @@ export default {
                     self.province_id = list.province_info.id
                     self.city_id = list.city_info.id
                     self.county_id = list.county_info.id
+                    console.log('self.location_info',self.location_info)
                     self.$emit('getPosition', self.location_info)
                   })
                   .catch(err => {})
