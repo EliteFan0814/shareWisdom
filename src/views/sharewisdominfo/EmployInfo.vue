@@ -344,6 +344,8 @@ export default {
     addOrEdit(row) {
       if (row.recruit_id) {
         this.item = row
+      }else{
+        this.item = {}
       }
       this.is_edit_show = true
     },

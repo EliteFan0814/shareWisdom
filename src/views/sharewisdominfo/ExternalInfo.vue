@@ -133,7 +133,7 @@
               type="primary">
               修改
             </el-button>
-            <el-button v-if="row.picture_json"
+            <el-button
               @click="browsePic(row)"
               size="mini"
               type="primary">
@@ -163,7 +163,7 @@
         :now_title="item"
         :spread_list="spread_config"
         @close="closeDia"></Spread>
-        <!-- 弹出图片展示 -->
+      <!-- 弹出图片展示 -->
       <PicShow v-if="is_pic_show"
         :now_row="item"
         @close="closeDia"></PicShow>
@@ -283,6 +283,7 @@ export default {
           this.info_data = res.data.lists
           this.total_page = res.data.page_total
           this.total_count = res.data.total
+          console.log(this.info_data[0].picture_json)
         })
     },
     filterData() {
@@ -360,6 +361,8 @@ export default {
     addOrEdit(row) {
       if (row.order_id) {
         this.item = row
+      }else{
+        this.item = {}
       }
       this.is_edit_show = true
     },
@@ -387,8 +390,8 @@ export default {
         .then(() => {
           // ----------删除接口----------
           this.$http
-            .post('/company/recruit/del', {
-              recruit_id: row.recruit_id
+            .post('/company/order/del', {
+              order_id: row.order_id
             })
             .then(() => {
               this.getData()

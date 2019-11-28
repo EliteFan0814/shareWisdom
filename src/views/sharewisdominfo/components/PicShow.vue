@@ -85,5 +85,8 @@ export default {
 .demo-image__lazy {
   height: 400px;
   overflow: auto;
+  img{
+    display: block;
+  }
 }
 </style>

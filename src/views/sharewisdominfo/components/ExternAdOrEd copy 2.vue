@@ -62,11 +62,28 @@
 
       <el-form-item label="添加图纸："
         prop="picture_json">
+        <!-- <el-image v-if=""
+          style="width: 100px; height: 100px"
+          :src="url"
+          :fit="fill"></el-image> -->
+        <!-- <el-upload action="https://jsonplaceholder.typicode.com/posts/"
+          list-type="picture-card"
+          :on-preview="handlePictureCardPreview"
+          :http-request="uploadPic"
+          :on-remove="removeImg">
+          <i class="el-icon-plus"></i>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible">
+          <img width="100%"
+            :src="dialogImageUrl"
+            alt="">
+        </el-dialog> -->
+
         <el-upload class="upload-demo"
           action="https://jsonplaceholder.typicode.com/posts/"
           :http-request="uploadPic"
           :on-remove="removeImg"
-          :file-list="el_img_list"
+          :file-list="filterImgUrl"
           list-type="picture-card">
           <el-button size="small"
             type="primary">点击上传</el-button>
@@ -107,16 +124,25 @@ export default {
         })
         .then(res => {
           this.innerRowInfo = res.data.info
-          this.filterImgUrl()
         })
     }
   },
   computed:{
-    
+    // 把返回的 picture_json_list 进行重置
+    filterImgUrl(){
+      let filterImg = []
+      this.innerRowInfo.picture_json_list.map(element => {
+        let inner = {}
+        inner.url = element
+        filterImg.push(inner)
+      });
+      console.log('filterImg',filterImg)
+      this.before_up_pic = filterImg
+      return  filterImg
+    }
   },
   data() {
     return {
-      el_img_list:[],
       innerRowInfo: {
         title: '',
         trade_id: '',
@@ -154,18 +180,7 @@ export default {
     }
   },
   methods: {
-    // 把返回的 picture_json_list 进行重置
-    filterImgUrl(){
-      let filterImg = []
-      this.innerRowInfo.picture_json_list.map(element => {
-        let inner = {}
-        inner.url = element
-        filterImg.push(inner)
-      });
-      // this.before_up_pic = filterImg
-      // 给el-img用的格式
-      this.el_img_list = filterImg
-    },
+    
     handlePictureCardPreview(file) {
       console.log(file)
       this.dialogImageUrl = file.url
@@ -191,8 +206,7 @@ export default {
       this.$http.post('/company/image/upload', form).then(res => {
         if (res.code) {
           pic_info.url = res.data.fileurl
-          // this.before_up_pic.push(pic_info)
-          this.el_img_list.push(pic_info)
+          this.before_up_pic.push(pic_info)
           this.filter_before_up_pic()
           console.log('图片列表详情 innerRowInfo里的pic_list：',this.innerRowInfo.picture_json)
         }
@@ -201,19 +215,19 @@ export default {
     // 最终上传时的图片数组格式
     filter_before_up_pic() {
       let res = []
-      for (let i = 0; i < this.el_img_list.length; i++) {
-        res.push(this.el_img_list[i].url)
+      for (let i = 0; i < this.before_up_pic.length; i++) {
+        res.push(this.before_up_pic[i].url)
       }
       this.innerRowInfo.picture_json = res
-      // this.innerRowInfo.picture_json_list = res
+      this.innerRowInfo.picture_json_list = res
     },
     // 删除图片
     removeImg(file, fileList) {
       let del_uid = file.uid
       let final_res = []
-      for (let i = 0; i < this.el_img_list.length; i++) {
-        if (this.el_img_list[i].uid === del_uid) {
-          this.el_img_list.splice(i, 1)
+      for (let i = 0; i < this.before_up_pic.length; i++) {
+        if (this.before_up_pic[i].uid === del_uid) {
+          this.before_up_pic.splice(i, 1)
         }
       }
       this.filter_before_up_pic()
