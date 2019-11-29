@@ -1,9 +1,15 @@
 const navList = {
   state: {
     list: [{
-        title: '账号信息',
+        title: '首页',
         index: '/',
         icon: require('@/assets/-svg/home.svg'),
+      },
+      // 企业账单
+      {
+        title: '企业账单',
+        index: '/sharewisdominfo/CompanyBill',
+        icon: require('@/assets/-svg/CompanyBill.svg')
       },
       // 用工信息
       {

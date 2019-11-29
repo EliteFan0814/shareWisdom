@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="rowInfo.order_id?'编辑当前职位':'发布新职位'"
+    :title="rowInfo.service_id?'编辑当前职位':'发布新职位'"
     :visible.sync="isDialog"
     :close-on-click-modal="false"
     @close="close"
@@ -27,12 +27,12 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="工期要求：" prop="project_ask">
+      <!-- <el-form-item label="工期要求：" prop="project_ask">
         <el-input placeholder="请输入工期要求" v-model="innerRowInfo.project_ask"></el-input>
-      </el-form-item>
-      <el-form-item label="所需人数：" prop="number">
+      </el-form-item> -->
+      <!-- <el-form-item label="所需人数：" prop="number">
         <el-input placeholder="请输入所需人数" v-model="innerRowInfo.number"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="费用预算：" prop="price">
         <el-input placeholder="请输入费用预算" v-model="innerRowInfo.price"></el-input>
       </el-form-item>
@@ -63,7 +63,7 @@
       </el-form-item>
 
       <el-form-item label="公司地址：" prop="map_location">
-        <Amap @getPosition="readPosition" :th_position="rowInfo" :user_id="rowInfo.order_id" :is_service="false"></Amap>
+        <Amap @getPosition="readPosition" :th_position="rowInfo" :user_id="rowInfo.service_id" :is_service="true"></Amap>
       </el-form-item>
     </el-form>
     <span slot="footer" align="right" class="dialog-footer">
@@ -83,11 +83,11 @@ export default {
   },
   props: ["rowInfo", "trade_class"],
   created() {
-    if (this.rowInfo.order_id) {
+    if (this.rowInfo.service_id) {
       // this.innerRowInfo = JSON.parse(JSON.stringify(this.rowInfo))
       this.$http
-        .get("/company/order/info", {
-          params: { order_id: this.rowInfo.order_id }
+        .get("/company/service/info", {
+          params: { service_id: this.rowInfo.service_id }
         })
         .then(res => {
           this.innerRowInfo = res.data.info;
@@ -123,10 +123,10 @@ export default {
       rules: {
         title: [{ required: true, message: "请输入标题" }],
         trade_id: [{ required: true, message: "请选择工种" }],
-        project_ask: [{ required: true, message: "工期要求不能为空" }],
+        // project_ask: [{ required: true, message: "工期要求不能为空" }],
         price: [{ required: true, message: "费用预算不能为空" }],
         type: [{ required: true, message: "请选择工期类型" }],
-        number: [{ required: true, message: "请输入人数" }],
+        // number: [{ required: true, message: "请输入电话" }],
         salary: [{ required: true, message: "请输入薪水" }],
         company_name: [{ required: true, message: "请输入公司名称" }],
         linkman: [{ required: true, message: "请输入联系人" }],
@@ -213,9 +213,9 @@ export default {
     },
 
     submit(refName) {
-       this.filter_before_up_pic()
+      this.filter_before_up_pic()
       // 判断如果当前是添加信息的话，判断amap组件是否选择了地址
-      if (!this.rowInfo.order_id) {
+      if (!this.rowInfo.service_id) {
         if (this.innerRowInfo.picture_json.length === 0) {
           this.$alert("请上传图纸", "缺少信息", {
             confirmButtonText: "确定"
@@ -233,10 +233,10 @@ export default {
       this.$refs[refName].validate(valid => {
         if (!valid) return;
         // ----------查看修改文章接口----------
-        if (this.innerRowInfo.order_id) {
-          // params.append('order_id', this.innerRowInfo.order_id)
+        if (this.innerRowInfo.service_id) {
+          // params.append('service_id', this.innerRowInfo.service_id)
           this.$http
-            .post("/company/order/edit", this.innerRowInfo)
+            .post("/company/service/edit", this.innerRowInfo)
             .then(res => {
               if (res.code) {
                 console.log(res);
@@ -251,7 +251,7 @@ export default {
           // ----------添加新文章接口----------
           console.log("params", this.innerRowInfo);
           this.$http
-            .post("/company/order/apply", this.innerRowInfo)
+            .post("/company/service/apply", this.innerRowInfo)
             .then(res => {
               console.log(res);
               if (res.code) {

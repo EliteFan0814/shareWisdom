@@ -296,7 +296,9 @@ export default {
       }
     },
     isClearProvinceId() {
-      ;(this.city_id = ''), (this.district_id = '')
+      this.city_id = ''
+      this.district_id = ''
+      this.filterData()
     },
     getCityList(province) {
       if (province) {

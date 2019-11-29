@@ -80,8 +80,8 @@ export default {
     TagsView
   },
   created() {
-    this.$http.post('/api/Login/GetMyInfo').then(res => {
-      this.username = res.user.name
+    this.$http.get('/company/company/info').then(res => {
+      this.username = res.data.info.name
     }).catch(err=>{
       
     })
@@ -158,12 +158,12 @@ export default {
         if (!valid) return false
         // this.pwdData.account = this.$store.state.username;
         this.$http
-          .post('/api/SystemUser/ModifyPwd', {
-            oldPwd: this.pwdData.oldPwd,
-            newPwd: this.pwdData.newPwd
+          .post('/company/company/chgPwd', {
+            old: this.pwdData.oldPwd,
+            password: this.pwdData.newPwd
           })
           .then(res => {
-            if (res.success) {
+            if (res.code) {
               this.$alert('请重新登陆', '密码已修改', {
                 confirmButtonText: '确定',
                 callback: action => {

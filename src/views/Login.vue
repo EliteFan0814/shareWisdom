@@ -1,107 +1,110 @@
 <template>
   <div class="login-container">
-    <el-form
-      ref="loginForm"
+    <el-form ref="loginForm"
       :model="loginForm"
       class="login-form"
       :rules="rules"
-      label-position="left"
-    >
+      label-position="left">
       <!-- <h3 class="title">{{$config.logintitle}}</h3> -->
       <img src="../icons/png/logo.png" />
       <el-form-item prop="username">
-        <el-input v-model="loginForm.username" placeholder="用户名" />
+        <el-input v-model="loginForm.username"
+          placeholder="用户名" />
       </el-form-item>
 
       <el-form-item prop="password">
-        <el-input
-          :type="pwdType"
+        <el-input :type="pwdType"
           v-model="loginForm.password"
           placeholder="密码"
-          @keyup.enter.native="handleLogin"
-        />
+          @keyup.enter.native="handleLogin" />
       </el-form-item>
 
       <el-form-item>
-        <el-button
-          :loading="loading"
+        <el-button :loading="loading"
           type="primary"
           style="width:100%;"
-          @click.native.prevent="handleLogin"
-        >登 录</el-button>
+          @click.native.prevent="handleLogin">登 录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapMutations } from 'vuex'
 export default {
-  name: "Login",
+  name: 'Login',
   created() {},
   data() {
     return {
       loginForm: {
-        username: "",
-        password: ""
+        username: '',
+        password: ''
       },
 
       loading: false,
-      pwdType: "password",
+      pwdType: 'password',
 
       rules: {
         username: [
-          { required: true, message: "请填写用户名", trigger: "blur" }
+          { required: true, message: '请填写用户名', trigger: 'blur' }
         ],
-        password: [{ required: true, message: "请填写密码", trigger: "blur" }]
+        password: [{ required: true, message: '请填写密码', trigger: 'blur' }]
       }
-    };
+    }
   },
 
   methods: {
     // 相当于把 this.LOG_IN 映射为 this.$store.commit('LOG_IN')
-    ...mapMutations(["SET_USER_NAME","LOG_IN"]),
+    ...mapMutations(['SET_USER_NAME', 'LOG_IN']),
 
     showPwd() {
-      if (this.pwdType === "password") {
-        this.pwdType = "";
+      if (this.pwdType === 'password') {
+        this.pwdType = ''
       } else {
-        this.pwdType = "password";
+        this.pwdType = 'password'
       }
     },
 
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true;
-          this.login();
+          this.loading = true
+          this.login()
         } else {
-          return false;
+          return false
         }
-      });
+      })
     },
 
     login() {
       this.$http
-        .post("/base/pub/login", {
+        .post('/base/pub/login', {
           account: this.loginForm.username,
           password: this.loginForm.password
         })
         .then(res => {
           // this.$store.state.username = this.loginForm.username;
-          this.SET_USER_NAME({userName:this.loginForm.username})
+          this.SET_USER_NAME({ userName: this.loginForm.username })
           if (res.code) {
-            this.LOG_IN({
-              token: res.data.token
-            });
-            this.$router.push("/");
+            if (res.data.check_status === 1 && res.data.role === 'company') {
+              this.LOG_IN({
+                token: res.data.token
+              })
+              this.$router.push('/')
+              this.loading = false
+            }else{
+               this.$alert('请登录正确账户', '权限非法', {
+                 confirmButtonText: '确定',
+               })
+              //  this.$router.push('/login')
+               this.loading = false
+            }
           }
-          this.loading = false;
         })
         .catch(err => {
-          this.loading = false;
-          this.$router.push("/login");
-        });
+          this.loading = false
+          this.$router.push('/login')
+        })
 
       //this.$store.state.username = this.loginForm.username;
       // this.$router.push({
@@ -112,7 +115,7 @@ export default {
       // });
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

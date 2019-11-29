@@ -12,7 +12,7 @@ import {
 
 const request = axios.create({
   // 仅在开发环境走代理
-  baseURL:'/'
+  baseURL: '/'
 })
 
 request.interceptors.request.use(
@@ -43,14 +43,17 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   res => {
     if (res.data.success || res.data.code === 1) {
-      // successcess
-      if (res.data.msg && res.data.msg != "ok") Message.success(res.data.msg)
+      if (res.data.msg && res.data.msg != "ok") {
+        if (!res.data.data.check_status || !res.data.data.role) {
+          Message.success(res.data.msg)
+        }
+      }
     }
     if (res.data.code === 0) {
       Message.error(res.data.msg)
     }
 
-    if ( res.data.code === 1) return res.data
+    if (res.data.code === 1) return res.data
     return Promise.reject(res.data)
   },
   err => {

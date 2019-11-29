@@ -22,10 +22,16 @@ export default new Router({
           path: '',
           name: 'Home',
           component: () => import('@/views/Home'),
-          meta: { title: '钱包余额' },
+          meta: { title: '首页' },
           // alias: '/'
         },
-
+        // 企业账单
+        {
+          path: '/sharewisdominfo/CompanyBill',
+          name: 'CompanyBill',
+          component: () => import('@/views/sharewisdominfo/CompanyBill'),
+          meta: { title: '企业账单' }
+        },
         // 用工信息
         {
           path: '/sharewisdominfo/EmployInfo',
@@ -42,7 +48,7 @@ export default new Router({
           meta: { title: '外协信息' }
         },
 
-        // 服务信息lalal
+        // 服务信息
         {
           path: '/sharewisdominfo/ServiceInfo',
           name: 'ServiceInfo',

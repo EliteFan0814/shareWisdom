@@ -55,13 +55,13 @@ export default {
         let url = ''
         let id_str = ''
         if(this.now_title.recruit_id){
-          url = '/company/recruit/lists'
+          url = '/company/recruit/spread'
           id_str = 'recruit_id'
         }else if(this.now_title.order_id){
-          url = '/company/order/lists'
+          url = '/company/order/spread'
           id_str = 'order_id'
         }else{
-          url = '/company/service/lists'
+          url = '/company/service/spread'
           id_str = 'service_id'
         }
         this.$http

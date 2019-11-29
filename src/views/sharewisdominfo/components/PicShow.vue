@@ -22,6 +22,9 @@ export default {
   props: {
     now_row: {
       default: {}
+    },
+    is_service:{
+      default:false
     }
     // spread_list: {
     //   default: []
@@ -45,10 +48,15 @@ export default {
       this.$emit('close')
     },
     getPicList() {
+      let url = '/company/order/info'
+      if(this.is_service){
+        url = '/company/service/info'
+      }
       this.$http
-        .get('/company/order/info', {
+        .get(url, {
           params: {
-            order_id: this.now_row.order_id
+            order_id: this.now_row.order_id,
+            service_id:this.now_row.service_id
           }
         })
         .then(res => {
