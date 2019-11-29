@@ -15,6 +15,7 @@
       <el-form-item label="推广配置：">
         <el-radio-group v-model="spread_id">
           <el-radio v-for="item in spread_list"
+            :key="item.id"
             :label="item.id">{{`推广 ${item.name} 天，需花费 ${item.value} 元`}}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -51,9 +52,23 @@ export default {
     },
     submit() {
       if (this.spread_id !== '') {
+        let url = ''
+        let id_str = ''
+        if(this.now_title.recruit_id){
+          url = '/company/recruit/lists'
+          id_str = 'recruit_id'
+        }else if(this.now_title.order_id){
+          url = '/company/order/lists'
+          id_str = 'order_id'
+        }else{
+          url = '/company/service/lists'
+          id_str = 'service_id'
+        }
         this.$http
-          .post('/company/recruit/spread', {
-            recruit_id: this.now_title.recruit_id,
+          .post(url, {
+            recruit_id: this.now_title[id_str],
+            order_id:this.now_title[id_str],
+            service_id:this.now_title[id_str],
             param_id: this.spread_id
           })
           .then(res => {

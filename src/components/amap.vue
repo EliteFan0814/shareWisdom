@@ -1,14 +1,19 @@
 <template>
   <div class="amap-wrapper">
-    <el-amap class="amap-demo"
+    <el-amap
+      class="amap-demo"
       vid="amapDemo"
       :zoom="zoom"
       :center="center"
       :plugin="plugin"
-      :events="events">
-      <el-amap-marker vid="amap-wrapper"
-        :position="center">
-      </el-amap-marker>
+      :events="events"
+    >
+      <el-amap-search-box
+        class="search-box"
+        :search-option="searchOption"
+        :on-search-result="onSearchResult"
+      ></el-amap-search-box>
+      <el-amap-marker vid="amap-wrapper" :position="center"></el-amap-marker>
     </el-amap>
     <span>当前位置：{{address}}</span>
   </div>
@@ -27,7 +32,7 @@ export default {
     //   default: ''
     // },
     user_id: {
-      default: ''
+      default: ""
     }
   },
   created() {
@@ -50,86 +55,86 @@ export default {
         province_id: this.province_id,
         city_id: this.city_id,
         county_id: this.county_id
-      }
+      };
     }
   },
   data() {
-    let self = this
+    let self = this;
     return {
       is_click: false,
       loaded: false,
       inner_lng_lat: [],
       center: [116.396732, 39.907478],
-      address: '请用地图选择位置',
+      address: "请用地图选择位置",
       lng: 116.396732,
       lat: 39.907478,
-      adcode: '',
-      province_id: '',
-      city_id: '',
-      county_id: '',
+      adcode: "",
+      province_id: "",
+      city_id: "",
+      county_id: "",
       zoom: 12,
       events: {
         click: e => {
-          this.lng = e.lnglat.lng // 经度
-          this.lat = e.lnglat.lat // 纬度
-          this.center = [this.lng, this.lat]
-          this.is_click = true
+          this.lng = e.lnglat.lng; // 经度
+          this.lat = e.lnglat.lat; // 纬度
+          this.center = [this.lng, this.lat];
+          this.is_click = true;
           // 这里通过高德 SDK 完成。
           var geocoder = new AMap.Geocoder({
             radius: 1000,
-            extensions: 'all'
-          })
+            extensions: "all"
+          });
           geocoder.getAddress([this.lng, this.lat], function(status, result) {
-            if (status === 'complete' && result.info === 'OK') {
+            if (status === "complete" && result.info === "OK") {
               if (result && result.regeocode) {
-                self.adcode = result.regeocode.addressComponent.adcode
-                self.address = result.regeocode.formattedAddress
+                self.adcode = result.regeocode.addressComponent.adcode;
+                self.address = result.regeocode.formattedAddress;
                 // 根据 adcode 切换成 province_id city_id  county_id
                 self.$http
-                  .post('/company/region/byCode', {
+                  .post("/company/region/byCode", {
                     adcode: self.adcode
                   })
                   .then(res => {
-                    let list = res.data
-                    self.province_id = list.province_info.id
-                    self.city_id = list.city_info.id
-                    self.county_id = list.county_info.id
-                    console.log('self.location_info', self.location_info)
-                    self.$emit('getPosition', self.location_info)
+                    let list = res.data;
+                    self.province_id = list.province_info.id;
+                    self.city_id = list.city_info.id;
+                    self.county_id = list.county_info.id;
+                    console.log("self.location_info", self.location_info);
+                    self.$emit("getPosition", self.location_info);
                   })
-                  .catch(err => {})
-                self.$nextTick()
+                  .catch(err => {});
+                self.$nextTick();
               }
             }
-          })
+          });
         }
       },
       plugin: [
         {
           // 初始定位
-          pName: 'Geolocation',
+          pName: "Geolocation",
           events: {
             init(o) {
               // 如果用户存在，就获取用户的经纬度
               if (self.user_id) {
                 self.getUserLocation(self.user_id).then(res => {
-                  console.log('成功获取用户经纬', res)
-                  self.lng = res.lng
-                  self.lat = res.lat
-                  self.address = res.address
-                  self.center = [self.lng, self.lat]
-                  self.loaded = true
-                })
+                  console.log("成功获取用户经纬", res);
+                  self.lng = res.lng;
+                  self.lat = res.lat;
+                  self.address = res.address;
+                  self.center = [self.lng, self.lat];
+                  self.loaded = true;
+                });
               } else {
                 o.getCurrentPosition((status, result) => {
                   if (result && result.position) {
-                    self.lng = result.position.lng
-                    self.lat = result.position.lat
-                    self.center = [self.lng, self.lat]
-                    self.loaded = true
-                    self.$nextTick()
+                    self.lng = result.position.lng;
+                    self.lat = result.position.lat;
+                    self.center = [self.lng, self.lat];
+                    self.loaded = true;
+                    self.$nextTick();
                   }
-                })
+                });
               }
               // if (self.map_lng === '' && self.map_lat === '') {
               //   o.getCurrentPosition((status, result) => {
@@ -146,39 +151,44 @@ export default {
           }
         }
       ]
-    }
+    };
   },
   methods: {
     getUserLocation(user_id) {
       return new Promise((resolve, reject) => {
         this.$http
-          .get('/company/order/info', {
+          .get("/company/order/info", {
             params: { order_id: user_id }
           })
           .then(res => {
             if (res.code) {
-              let position = {}
-              position.lng = res.data.info.add_lon
-              position.lat = res.data.info.add_lat
-              position.address = res.data.info.address
-              resolve(position)
+              let position = {};
+              position.lng = res.data.info.add_lon;
+              position.lat = res.data.info.add_lat;
+              position.address = res.data.info.address;
+              resolve(position);
             }
           })
           .catch(err => {
-            console.log('amap组件获取客户经纬度错误！', err)
-          })
-      })
+            console.log("amap组件获取客户经纬度错误！", err);
+          });
+      });
     },
     del() {
-      alert(1)
+      alert(1);
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
 .amap-wrapper {
   width: 90%;
   height: 300px;
+  .search-box {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
 }
 </style>
