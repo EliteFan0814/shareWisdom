@@ -44,7 +44,8 @@ request.interceptors.response.use(
   res => {
     if (res.data.success || res.data.code === 1) {
       if (res.data.msg && res.data.msg != "ok") {
-        if (!res.data.data.check_status || !res.data.data.role) {
+        console.log(res)
+        if (!res.data.data.token) {
           Message.success(res.data.msg)
         }
       }

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="rowInfo.recruit_id?'编辑当前职位':'发布新职位'"
+  <el-dialog :title="rowInfo.recruit_id?'编辑当前用工信息':'发布用工信息'"
     :visible.sync="isDialog"
     :close-on-click-modal="false"
     @close="close"
@@ -66,10 +66,11 @@
       </el-form-item>
       <el-form-item label="公司地址："
         prop="map_location">
-        <Amap @getPosition="readPosition"
+        <!-- <Amap @getPosition="readPosition"
           :trans_ad="innerRowInfo.address"
           :map_lng="innerRowInfo.add_lon"
-          :map_lat="innerRowInfo.add_lat"></Amap>
+          :map_lat="innerRowInfo.add_lat"></Amap> -->
+          <Amap @getPosition="readPosition" :th_position="rowInfo" :user_id="rowInfo.order_id" :what_class="'recruit'"></Amap>
       </el-form-item>
     </el-form>
     <span slot="footer"

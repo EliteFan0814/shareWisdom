@@ -11,6 +11,7 @@
         :on-search-result="onSearchResult"></el-amap-search-box> -->
       <!-- 标记 -->
       <input type="text"
+        placeholder="请输入地址"
         id="pickerInput"
         class="search-box">
       <el-amap-marker vid="amap-wrapper"
@@ -35,6 +36,7 @@ export default {
     // more_info: {
     //   default: ''
     // },
+    // 获取了当前行的全部，但是只是用省 市 区 的id
     th_position: {
       default: {}
     },
@@ -43,39 +45,22 @@ export default {
     },
     is_service: {
       default: false
+    },
+    what_class: {
+      default: false
     }
   },
   created() {
     if (this.user_id) {
-      console.log('amap从负组件获取的：',this.th_position)
+      console.log('amap从父组件 表单 中获取的：', this.th_position)
       this.province_id = this.th_position.province_id
       this.city_id = this.th_position.city_id
       this.county_id = this.th_position.county_id
       this.is_click = true
     }
-
-    // if (this.user_id) {
-    //   let url = '/company/order/info'
-    //   if (this.is_service) {
-    //     url = '/company/service/info'
-    //   }
-    //   this.$http
-    //     .get(url, {
-    //       params: { service_id: this.user_id, order_id: this.user_id }
-    //     })
-    //     .then(res => {
-    //       if (res.code) {
-    //         this.province_id = res.data.info.province_id
-    //         this.city_id = res.data.info.city_id
-    //         this.county_id = res.data.info.county_id
-    //         this.is_click = true
-    //         console.log('created的时候的：',this.location_info)
-    //         this.$emit('getPosition', self.location_info)
-    //       }
-    //     })
-    // }
   },
   computed: {
+    // 实时更改地址相关信息
     location_info() {
       return {
         is_click: this.is_click,
@@ -95,7 +80,7 @@ export default {
       loaded: false,
       inner_lng_lat: [],
       center: [116.396732, 39.907478],
-      address: '请用地图选择位置',
+      address: '请在地图上选择位置',
       lng: 116.396732,
       lat: 39.907478,
       adcode: '',
@@ -115,6 +100,7 @@ export default {
             radius: 1000,
             extensions: 'all'
           })
+          // 通过点击获取的经纬度获取详细的
           geocoder.getAddress([this.lng, this.lat], function(status, result) {
             if (status === 'complete' && result.info === 'OK') {
               if (result && result.regeocode) {
@@ -151,9 +137,11 @@ export default {
               self.lng = poiResult.item.location.lng // 经度
               self.lat = poiResult.item.location.lat // 纬度
               self.center = [self.lng, self.lat]
-              console.log('poi adcode', poiResult.item.adcode)
-              // self.adcode = poiResult.item.adcode
-              self.address = '请再次手动选择具体位置！'
+              self.address = poiResult.item.district + poiResult.item.name
+              self.adcode = poiResult.item.adcode
+              console.log('11111', poiResult)
+              self.is_click = true
+              console.log('22222', self.is_click)
               //用户选中的poi点信息
               // 根据 adcode 切换成 province_id city_id  county_id
               self.$http
@@ -165,6 +153,7 @@ export default {
                   self.province_id = list.province_info.id
                   self.city_id = list.city_info.id
                   self.county_id = list.county_info.id
+                  console.log('self.location_info', self.location_info)
                   self.$emit('getPosition', self.location_info)
                 })
                 .catch(err => {})
@@ -222,8 +211,12 @@ export default {
   },
   methods: {
     getUserLocation(user_id) {
-      let url = '/company/order/info'
-      if (this.is_service) {
+      let url = ''
+      if (this.what_class === 'recruit') {
+        url = '/company/recruit/info'
+      } else if (this.what_class === 'order') {
+        url = '/company/order/info'
+      }else{
         url = '/company/service/info'
       }
       return new Promise((resolve, reject) => {
@@ -261,6 +254,10 @@ export default {
     position: absolute;
     top: 10px;
     left: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    outline: none;
+    padding: 5px;
   }
 }
 </style>

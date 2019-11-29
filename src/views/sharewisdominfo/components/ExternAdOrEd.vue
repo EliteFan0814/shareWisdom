@@ -63,7 +63,7 @@
       </el-form-item>
 
       <el-form-item label="公司地址：" prop="map_location">
-        <Amap @getPosition="readPosition" :th_position="rowInfo" :user_id="rowInfo.order_id" :is_service="false"></Amap>
+        <Amap @getPosition="readPosition" :th_position="rowInfo" :user_id="rowInfo.order_id" :what_class="'order'"></Amap>
       </el-form-item>
     </el-form>
     <span slot="footer" align="right" class="dialog-footer">
