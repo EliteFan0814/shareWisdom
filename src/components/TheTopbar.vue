@@ -143,8 +143,8 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$router.push('/login')
         this.LOG_OUT()
+        // this.$router.push('/login')
       }).catch(() => {
         this.$message('已取消退出！')
       })
