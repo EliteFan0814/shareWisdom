@@ -159,7 +159,7 @@ export default {
         .then(res => {
           console.log(res)
           this.infoData = res.data.list
-          this.totalPage = res.data.page
+          this.totalPage = Number(res.data.page)
           this.totalCount = res.data.total
           this.bill_list = res.data.class_screen
         })

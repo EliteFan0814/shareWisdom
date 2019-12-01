@@ -239,7 +239,7 @@ export default {
           this.info_data = res.data.lists;
           this.total_page = res.data.page_total;
           this.total_count = res.data.total;
-          console.log(this.info_data[0].picture_json);
+          // console.log(this.info_data[0].picture_json);
         });
     },
     filterData() {
