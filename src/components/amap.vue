@@ -1,21 +1,12 @@
 <template>
   <div class="amap-wrapper">
-    <el-amap class="amap-demo"
-      vid="amapDemo"
-      :zoom="zoom"
-      :center="center"
-      :plugin="plugin"
-      :events="events">
+    <el-amap class="amap-demo" vid="amapDemo" :zoom="zoom" :center="center" :plugin="plugin" :events="events">
       <!-- <el-amap-search-box class="search-box"
         :search-option="searchOption"
         :on-search-result="onSearchResult"></el-amap-search-box> -->
       <!-- 标记 -->
-      <input type="text"
-        placeholder="请输入地址"
-        id="pickerInput"
-        class="search-box">
-      <el-amap-marker vid="amap-wrapper"
-        :position="center"></el-amap-marker>
+      <input type="text" placeholder="请输入地址" id="pickerInput" class="search-box">
+      <el-amap-marker vid="amap-wrapper" :position="center"></el-amap-marker>
     </el-amap>
     <span>当前位置：{{address}}</span>
   </div>
@@ -24,18 +15,6 @@
 <script>
 export default {
   props: {
-    // map_lng: {
-    //   default: ''
-    // },
-    // map_lat: {
-    //   default: ''
-    // },
-    // trans_ad: {
-    //   default: ''
-    // },
-    // more_info: {
-    //   default: ''
-    // },
     // 获取了当前行的全部，但是只是用省 市 区 的id
     th_position: {
       default: {}
@@ -51,8 +30,8 @@ export default {
     }
   },
   created() {
+    // 如果有客户信息，则获取客户信息并通过省市id定位地址
     if (this.user_id) {
-      console.log('amap从父组件 表单 中获取的：', this.th_position)
       this.province_id = this.th_position.province_id
       this.city_id = this.th_position.city_id
       this.county_id = this.th_position.county_id
@@ -89,18 +68,18 @@ export default {
       county_id: '',
       zoom: 12,
       events: {
-        // 用户点击后触发选择地址
+        // 用户点击后触发选择地址事件
         click: e => {
           this.lng = e.lnglat.lng // 经度
           this.lat = e.lnglat.lat // 纬度
           this.center = [this.lng, this.lat]
           this.is_click = true
-          // 这里通过高德 SDK 完成。
+          // 这里通过高德 SDK 通过经纬度获取 adcode 并转换为各省市区id
           var geocoder = new AMap.Geocoder({
             radius: 1000,
             extensions: 'all'
           })
-          // 通过点击获取的经纬度获取详细的
+          // 通过点击获取的经纬度获取 adcode address 并解析出各省市区id
           geocoder.getAddress([this.lng, this.lat], function(status, result) {
             if (status === 'complete' && result.info === 'OK') {
               if (result && result.regeocode) {
@@ -116,7 +95,6 @@ export default {
                     self.province_id = list.province_info.id
                     self.city_id = list.city_info.id
                     self.county_id = list.county_info.id
-                    console.log('self.location_info', self.location_info)
                     self.$emit('getPosition', self.location_info)
                   })
                   .catch(err => {})
@@ -125,12 +103,12 @@ export default {
             }
           })
         },
-        // 搜索框
+        // 地图内搜索框
         init(map) {
           // AMapUI.setDomLibrary($)
           AMapUI.loadUI(['misc/PoiPicker'], function(PoiPicker) {
             var poiPicker = new PoiPicker({
-              input: 'pickerInput' //输入框id
+              input: 'pickerInput' //搜索框id
             })
             //监听poi选中信息
             poiPicker.on('poiPicked', function(poiResult) {
@@ -139,9 +117,7 @@ export default {
               self.center = [self.lng, self.lat]
               self.address = poiResult.item.district + poiResult.item.name
               self.adcode = poiResult.item.adcode
-              console.log('11111', poiResult)
               self.is_click = true
-              console.log('22222', self.is_click)
               //用户选中的poi点信息
               // 根据 adcode 切换成 province_id city_id  county_id
               self.$http
@@ -192,17 +168,6 @@ export default {
                   }
                 })
               }
-              // if (self.map_lng === '' && self.map_lat === '') {
-              //   o.getCurrentPosition((status, result) => {
-              //     if (result && result.position) {
-              //       self.lng = result.position.lng
-              //       self.lat = result.position.lat
-              //       self.center = [self.lng, self.lat]
-              //       self.loaded = true
-              //       self.$nextTick()
-              //     }
-              //   })
-              // }
             }
           }
         }
@@ -210,19 +175,24 @@ export default {
     }
   },
   methods: {
+    // 根据用户id获取经纬度和地址
     getUserLocation(user_id) {
       let url = ''
       if (this.what_class === 'recruit') {
         url = '/company/recruit/info'
       } else if (this.what_class === 'order') {
         url = '/company/order/info'
-      }else{
+      } else {
         url = '/company/service/info'
       }
       return new Promise((resolve, reject) => {
         this.$http
           .get(url, {
-            params: { order_id: user_id, service_id: user_id }
+            params: {
+              recruit_id: user_id,
+              order_id: user_id,
+              service_id: user_id
+            }
           })
           .then(res => {
             if (res.code) {

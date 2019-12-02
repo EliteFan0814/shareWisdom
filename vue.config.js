@@ -8,7 +8,9 @@ module.exports = {
   // 代理跨域
   devServer: {
     // 目标服务器
-    proxy: 'http://zaihe.demo2.dx623.com'
+    // proxy: 'http://zaihe.demo2.dx623.com'
+    proxy: 'myssl.dx623.com'
+
   },
 
   // js source-map

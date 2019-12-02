@@ -10,7 +10,7 @@ import {
 
 const request = axios.create({
   // 仅在开发环境走代理
-  baseURL: process.env.NODE_ENV === 'development' ? '' : 'http://zaihe.demo2.dx623.com'
+  baseURL: process.env.NODE_ENV === 'development' ? '' : 'myssl.dx623.com'
 })
 
 request.interceptors.request.use(
