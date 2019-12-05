@@ -1,22 +1,14 @@
 <template>
   <div>
     <el-card>
-      <div slot="header"
-        :class="$style.header">
+      <div slot="header" :class="$style.header">
         <div :class="$style.search">
           <span>搜索：</span>
-          <el-select v-model="bill_class"
-            @clear="filterData"
-            placeholder="选择账单类型"
-            clearable>
-            <el-option v-for="item in bill_list"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"></el-option>
+          <el-select v-model="bill_class" @clear="filterData" placeholder="选择账单类型" clearable>
+            <el-option v-for="item in bill_list" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </div>
-        <el-button @click="filterData"
-          type="primary">
+        <el-button @click="filterData" type="primary">
           搜索
           <i class="el-icon-search"></i>
         </el-button>
@@ -37,25 +29,13 @@
               :phone="row.phone"></MemberInfo>
           </template>
         </el-table-column> -->
-        <el-table-column label="账单类型"
-          prop="class_str"
-          align="center"
-          class="imgbox">
+        <el-table-column label="账单类型" prop="class_str" align="center" class="imgbox">
         </el-table-column>
-        <el-table-column label="账单金额(元)"
-          prop="amount"
-          align="center"
-          class="imgbox">
+        <el-table-column label="账单金额(元)" prop="amount" align="center" class="imgbox">
         </el-table-column>
-        <el-table-column label="创建时间"
-          prop="create_time"
-          align="center"
-          class="imgbox">
+        <el-table-column label="创建时间" prop="create_time" align="center" class="imgbox">
         </el-table-column>
-        <el-table-column label="备注"
-          prop="remark"
-          min-width="120"
-          align="center">
+        <el-table-column label="备注" prop="remark" min-width="120" align="center">
         </el-table-column>
         <!-- <el-table-column label="创建时间"
           prop="createdDate"
@@ -73,9 +53,7 @@
           </template>
         </el-table-column> -->
       </el-table>
-      <BasePagination :max="totalPage"
-        :totalCount="totalCount"
-        :now.sync="nowPage"></BasePagination>
+      <BasePagination :max="totalPage" :totalCount="totalCount" :now.sync="nowPage"></BasePagination>
     </el-card>
   </div>
 </template>
