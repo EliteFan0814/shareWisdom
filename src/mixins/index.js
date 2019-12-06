@@ -1,3 +1,5 @@
+import router from "../router"
+
 const views = {
   methods: {
     init(to, from) {
@@ -6,10 +8,12 @@ const views = {
   },
 
   beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.init(to, from)
-    })
+      next(vm => {
+        vm.init(to, from)
+      })
   }
 }
 
-export { views }
+export {
+  views
+}

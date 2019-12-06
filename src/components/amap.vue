@@ -60,7 +60,7 @@ export default {
       loaded: false,
       inner_lng_lat: [],
       center: [116.396732, 39.907478],
-      address: '请在地图上选择位置',
+      address: '',
       lng: 116.396732,
       lat: 39.907478,
       adcode: '',
@@ -161,11 +161,16 @@ export default {
               } else {
                 // 如果用户不存在，就根据IP地址自动定位
                 o.getCurrentPosition((status, result) => {
+                  self.address = '正在定位，请稍等...'
                   if (result && result.position) {
+                    console.log('result',result)
                     self.lng = result.position.lng
                     self.lat = result.position.lat
+                    self.address = result.formattedAddress
                     self.center = [self.lng, self.lat]
                     self.loaded = true
+                    self.is_click = true
+                    self.tranceAdcodeToId(result.addressComponent.adcode)
                     self.$nextTick()
                   }
                 })

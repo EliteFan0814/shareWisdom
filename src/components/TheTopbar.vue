@@ -12,60 +12,41 @@
       </div>
 
       <div :class="$style.user">
+         <span :class="$style.sharedou">
+            共享豆：{{shareDou}}
+          </span>
         <el-dropdown>
           <span class="el-dropdown-link">
             {{username}}
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item divided
-              @click.native="isDialog = true">修改密码</el-dropdown-item>
+            <el-dropdown-item divided @click.native="isDialog = true">修改密码</el-dropdown-item>
             <el-dropdown-item @click.native="logout">登 出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <img src="@/assets/logo.png"
-          width="40"
-          height="30"
-          m-r-10>
+        <img src="@/assets/logo.png" width="40" height="30" m-r-10>
       </div>
     </div>
 
     <TagsView></TagsView>
 
-    <el-dialog :visible.sync="isDialog"
-      :close-on-click-modal="false"
-      title="修改密码"
-      width="480px"
-      :modal-append-to-body="false">
-      <el-form :model="pwdData"
-        label-position="left"
-        label-width="120px"
-        ref="pwd"
-        :rules="pwdRules">
-        <el-form-item label="旧密码"
-          prop="oldPwd">
-          <el-input type="password"
-            v-model="pwdData.oldPwd"
-            placeholder="请输入旧密码"></el-input>
+    <el-dialog :visible.sync="isDialog" :close-on-click-modal="false" title="修改密码" width="480px" :modal-append-to-body="false">
+      <el-form :model="pwdData" label-position="left" label-width="120px" ref="pwd" :rules="pwdRules">
+        <el-form-item label="旧密码" prop="oldPwd">
+          <el-input type="password" v-model="pwdData.oldPwd" placeholder="请输入旧密码"></el-input>
         </el-form-item>
-        <el-form-item label="新密码"
-          prop="newPwd">
-          <el-input type="password"
-            v-model="pwdData.newPwd"
-            placeholder="请输入新密码"></el-input>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input type="password" v-model="pwdData.newPwd" placeholder="请输入新密码"></el-input>
         </el-form-item>
-        <el-form-item label="确认密码"
-          prop="repassword">
-          <el-input type="password"
-            v-model="pwdData.repassword"
-            placeholder="请确认新密码"></el-input>
+        <el-form-item label="确认密码" prop="repassword">
+          <el-input type="password" v-model="pwdData.repassword" placeholder="请确认新密码"></el-input>
         </el-form-item>
       </el-form>
 
       <div slot="footer">
         <el-button @click="isDialog = false">取 消</el-button>
-        <el-button type="primary"
-          @click="changePwd">确 定</el-button>
+        <el-button type="primary" @click="changePwd">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -80,11 +61,13 @@ export default {
     TagsView
   },
   created() {
-    this.$http.get('/company/company/info').then(res => {
-      this.username = res.data.info.name
-    }).catch(err=>{
-      
-    })
+    this.$http
+      .get('/company/company/info')
+      .then(res => {
+        this.username = res.data.info.name
+        this.shareDou = res.data.info.amount
+      })
+      .catch(err => {})
     // this.username = this.$store.state.username
   },
   data() {
@@ -98,6 +81,7 @@ export default {
 
     return {
       username: '',
+      shareDou:'',
       isDialog: false,
       pwdData: {
         oldPwd: '',
@@ -142,16 +126,18 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.LOG_OUT()
-        // this.$router.push('/login')
-      }).catch(() => {
-        this.$message('已取消退出！')
       })
+        .then(() => {
+          this.LOG_OUT()
+          // this.$router.push('/login')
+        })
+        .catch(() => {
+          this.$message('已取消退出！')
+        })
     },
 
     scrollNav() {
-      this.$store.commit("SCROLL_NAV");
+      this.$store.commit('SCROLL_NAV')
     },
     changePwd() {
       this.$refs.pwd.validate(valid => {
@@ -224,5 +210,8 @@ export default {
   > *:first-child {
     cursor: pointer;
   }
+}
+.sharedou{
+  margin-right: 30px;
 }
 </style>
