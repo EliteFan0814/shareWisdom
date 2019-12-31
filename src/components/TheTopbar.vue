@@ -12,9 +12,9 @@
       </div>
 
       <div :class="$style.user">
-         <span :class="$style.sharedou">
-            共享豆：{{shareDou}}
-          </span>
+        <span :class="$style.sharedou">
+          共享豆：{{shareDou}}
+        </span>
         <el-dropdown>
           <span class="el-dropdown-link">
             {{username}}
@@ -25,7 +25,8 @@
             <el-dropdown-item @click.native="logout">登 出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <img src="@/assets/logo.png" width="40" height="30" m-r-10>
+        <img v-if="picurl" :src="picurl" width="40" height="30" m-r-10>
+        <img v-else src="@/assets/logo.png" width="40" height="30" m-r-10>
       </div>
     </div>
 
@@ -60,16 +61,7 @@ export default {
   components: {
     TagsView
   },
-  created() {
-    this.$http
-      .get('/company/company/info')
-      .then(res => {
-        this.username = res.data.info.name
-        this.shareDou = res.data.info.amount
-      })
-      .catch(err => {})
-    // this.username = this.$store.state.username
-  },
+
   data() {
     const repassword = (rule, value, callback) => {
       if (value !== this.pwdData.newPwd) {
@@ -81,8 +73,9 @@ export default {
 
     return {
       username: '',
-      shareDou:'',
+      shareDou: '',
       isDialog: false,
+      picurl: '',
       pwdData: {
         oldPwd: '',
         newPwd: '',
@@ -117,7 +110,17 @@ export default {
       this.$refs.pwd.resetFields()
     }
   },
-
+  created() {
+    this.$http
+      .get('/company/company/info')
+      .then(res => {
+        this.username = res.data.info.name
+        this.shareDou = res.data.info.amount
+        this.picurl = res.data.info.picurl
+      })
+      .catch(err => {})
+    // this.username = this.$store.state.username
+  },
   methods: {
     ...mapMutations(['LOG_OUT']),
 
@@ -211,7 +214,7 @@ export default {
     cursor: pointer;
   }
 }
-.sharedou{
+.sharedou {
   margin-right: 30px;
 }
 </style>

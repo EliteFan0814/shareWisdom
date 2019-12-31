@@ -9,8 +9,9 @@ module.exports = {
   devServer: {
     // 目标服务器
     // proxy: 'https://myssl.dx623.com'
+    proxy: 'https://app.igxzz.cn'
 
-    proxy: 'myssl.dx623.com'
+    // proxy: 'myssl.dx623.com'
 
   },
 

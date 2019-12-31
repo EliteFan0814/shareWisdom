@@ -35,8 +35,8 @@ export default {
   computed: {
     cardList() {
       return [
-        { path: '/sharewisdominfo/EmployInfo', ...this.dataMsg.buy_resume_num },// 点击跳转工人信息列表
-        { path: '/sharewisdominfo/ExternalInfo',...this.dataMsg.recruit_release_num },// 点击跳转外协列表
+        { path: '/sharewisdominfo/ExternalInfo',...this.dataMsg.order_release_num },// 点击跳转外协列表
+        { path: '/sharewisdominfo/EmployInfo', ...this.dataMsg.recruit_release_num },// 点击跳转工人信息列表
         { path: '/sharewisdominfo/ServiceInfo',...this.dataMsg.service_release_num },// 点击跳转服务列表
       ]
     }
