@@ -13,12 +13,12 @@
       </el-form-item>
       <el-form-item label="工期：" prop="type">
         <el-select v-model="innerRowInfo.type" placeholder="请选择工期">
-          <el-option label="长期" value="长期"></el-option>
-          <el-option label="短期" value="短期"></el-option>
+          <el-option v-for="item in type_screen" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <!-- <el-option label="短期" value="短期"></el-option> -->
         </el-select>
       </el-form-item>
       <el-form-item label="薪资：" prop="salary">
-        <el-input style="width:165px;" placeholder="请输入薪资" v-model="innerRowInfo.salary"></el-input>&nbsp;(元)&nbsp;每{{innerRowInfo.type==='长期'?'月':'天'}}
+        <el-input style="width:165px;" placeholder="请输入薪资" v-model="innerRowInfo.salary"></el-input>&nbsp;(元)&nbsp;每{{innerRowInfo.type==='long'?'月':'天'}}
       </el-form-item>
       <!-- </div> -->
 
@@ -59,6 +59,7 @@ export default {
   },
   props: ['rowInfo', 'worker_class'],
   created() {
+    this.getTypeList()
     if (this.rowInfo.recruit_id) {
       this.innerRowInfo = JSON.parse(JSON.stringify(this.rowInfo))
     }
@@ -77,6 +78,7 @@ export default {
         position: ''
       },
       isDialog: true,
+      type_screen: [],
       rules: {
         title: [{ required: true, message: '请输入标题' }],
         worker_id: [{ required: true, message: '请选择工种' }],
@@ -91,6 +93,13 @@ export default {
     }
   },
   methods: {
+    getTypeList() {
+      this.$http.get('/company/company/lst').then(res => {
+        if (res.code) {
+          this.type_screen = res.data.type_screen
+        }
+      })
+    },
     close() {
       this.$emit('close')
     },
